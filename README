@@ -1,0 +1,40 @@
+catamqp.py is a simple command to listen AMQP server exchange.
+
+Features: 
+  * try to decode message body as JSON and format it. 
+    Or output as string if failed
+  * with key '-t' listen 'amq.rabbitmq.trace' exchange and 
+    write output in file (by default, 'trace.log')
+
+Examples: 
+  # output on screen messages 
+  ./catamqp.py nova
+  # write output in file 
+  ./catamqp.py -f nova.log nova
+  # specify route key 
+  ./catamqp.py -r nova.* nova
+  # trace messages
+  ./catamqp.py -t 
+  # trace only publish
+  ./catamqp.py -t -r publish.* 
+  # output trace on screen instead of file, trace only publish 
+  # messages in nova exchange
+  ./catamqp.py -t -f - -r publish.nova
+
+Tracing: 
+  Rabbitmq has to be >= 2.6. Upgrade if needed. 
+  To enable trace:
+  * rabbitmq-plugins enable rabbitmq_tracing
+  * service rabbitmq-server restart
+  * rabbitmqctl trace_on
+  To disable trace:
+  * rabbitmqctl trace_off
+
+  Traced messages publsished in exchange 'amq.rabbitmq.trace', with fields: 
+  * routing key 
+    * "publish.exchangename", for messages entering the broker
+    * "deliver.queuename", for messages leaving the broker
+    * "info", "warn", "error" - internal
+  * headers containing metadata about the original message: all its headers, properties, and a few other things
+  * body corresponding to the body of the original message
+   
